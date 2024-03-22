@@ -1,0 +1,287 @@
+/*
+Estilos que vão servir para o projeto como um todo
+*/
+
+@import './configs.scss';
+
+@font-face {
+    font-family: $fontRegular;
+    src: url('../fonts/BiennaleRegular.otf');
+}
+
+@font-face {
+    font-family: $fontBold;
+    src: url('../fonts/BiennaleBold.otf');
+}
+
+@font-face {
+    font-family: $fontLight;
+    src: url('../fonts/BiennaleLight.otf');
+}
+
+* {
+    font-family: $fontRegular;
+    font-size: 14px;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+#app {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+    padding: 0;
+}
+
+input {
+    font-size: 16px;
+    letter-spacing: 0.01em;
+    color: $primaryColor;
+    border-radius: 0;
+    border: none;
+    outline: none;
+
+    &.focus {
+        border-color: $primaryColor;
+    }
+
+    &::placeholder {
+        color: $greyColor2;
+        opacity: 1;
+    }
+
+    &:-ms-input-placeholder {
+        color: $greyColor2;
+    }
+
+    &::-ms-input-placeholder {
+        color: $greyColor2;
+    }
+
+    /*
+    Um placeholder em CSS é um tipo de texto temporário que é exibido dentro de um campo de entrada de um formulário HTML antes que o usuário insira seu próprio texto.
+    Ele é geralmente usado para fornecer uma sugestão ou exemplo do tipo de entrada esperada no campo, sem ocupar muito espaço visualmente.
+    Por exemplo, um campo de entrada de e-mail pode ter um placeholder como "Digite seu e-mail aqui", enquanto um campo de senha pode ter um placeholder como "Digite sua senha". Esses placeholders desaparecem assim que o usuário começa a digitar no campo.
+    */
+}
+
+button {
+    margin-top: 30px;
+    width: 100%;
+    height: 48px;
+    background-color: $primaryColor;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.avatar {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid $primaryColor;
+
+    img {
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+    }
+
+    span {
+        display: none;
+    }
+}
+
+.oculto {
+    display: none !important;
+}
+
+body {
+    @media screen and (min-width: $desktopBreakpoint) {
+        background-color: $primaryColorWithOpacity;
+        background-image: url('../images/background.svg');
+        background-size: cover;
+    }
+}
+
+.g-dialog-content {
+    .wrapper {
+        color: #000;
+    }
+
+    .content {
+        padding: 20px;
+
+        p {
+            font-size: 12px;
+            color: $greyColor;
+            margin: 0;
+        }
+
+        span {
+            font-size: 16px;
+            color: $primaryColor;
+        }
+
+        .line {
+            margin: 16px 0;
+            width: 100%;
+            height: 0;
+            border-bottom: 0, 5px solid $greyColor3;
+        }
+
+        .avatars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            .container-avatar {
+                margin: 3px;
+                width: 29.8%;
+                height: 23vw;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid $greyColor1;
+                border-radius: 4px;
+                background-color: $primaryColor4;
+
+                &.selected {
+                    border-color: $primaryColor;
+                }
+
+                img {
+                    height: 100%;
+                }
+            }
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            span {
+                cursor: pointer;
+                font-size: 16px;
+                color: $primaryColor;
+                text-decoration: underline;
+                margin-right: 20px;
+            }
+
+            button {
+                margin: 0;
+                width: 40%;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            span {
+                font-weight: 700;
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+
+            p {
+                font-weight: 400;
+                font-size: 16px;
+                line-height: 24px;
+            }
+
+            div {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+
+                .color {
+                    cursor: pointer;
+                    width: 80px;
+                    height: 80px;
+                    margin: 0 8px;
+                    border: 2px solid transparent;
+
+                    &.selected{
+                        border-color: $greyColor1;
+                    }
+                }
+            }
+
+        }
+    }
+
+    @media screen and (min-width: $desktopBreakpoint) {
+        max-width: 640px;
+
+        .content {
+            .avatars {
+                .container-avatar {
+                    width: 28%;
+                    height: 10.5vw;
+                    margin: 8px;
+                    cursor: pointer;
+
+                    &:hover {
+                        border: 2px solid $greyColor3;
+                    }
+
+                    &.selected {
+                        &:hover {
+                            border: 2px solid $primaryColor;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.scroll {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 60%;
+    overflow-x: scroll;
+    align-items: flex-end;
+    justify-content: flex-start;
+
+    &::-webkit-scrollbar{
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track{
+        background: $primaryColorWithOpacity;
+    }
+
+    &::-webkit-scrollbar-thumb{
+        background: $primaryColor;
+        border-radius: 8px;
+    }
+}
