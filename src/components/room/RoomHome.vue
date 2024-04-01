@@ -27,6 +27,7 @@ export default defineComponent({
             connectedUsers: [] as any,
             me: null as any,
             showModal: false,
+            coordinates: [] as any,
         }
     },
     async mounted() {
@@ -65,6 +66,29 @@ export default defineComponent({
                 const videoRef: any = document.getElementById('localVideoRef');
                 videoRef.srcObject = this.userMediaStream;
             }
+
+            // Lógica para verificar quais objetos são do tipo esperado e guardar as coordenadas deles
+            const noMove = this.objects
+                .filter((o: any) => o.type === 'table' || o.type === 'decor' || o.type === 'nature')
+                .map((o: any) => {
+                    if (o.type === 'table' && ['table_01', 'table_02', 'table_03'].includes(o.name)) {
+                        const nextCoordinates = [];
+                        for (let x = o.x; x < o.x + 2; x++) {
+                            for (let y = o.y; y < o.y + 2; y++) {
+                                nextCoordinates.push({ x, y });
+                            }
+                        }
+                        // Supondo que 'x' e 'y' são as coordenadas x e y do objeto
+                        return { type: o.type, name: o.name, x: o.x, y: o.y, nextCoordinates};
+                    } else {
+                        // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                        return { type: o.type, name: o.name, id: o._id, x: o.x, y: o.y, nextCoordinates: [] };
+                    }
+                });
+
+            // Defina os dados de coordenadas filtradas no estado do componente
+            this.coordinates = noMove;
+            console.log(noMove)
 
         } catch (e) {
             console.log('erro ao obter dados da reunião:', e);
@@ -170,6 +194,26 @@ export default defineComponent({
                     default: break;
                 }
 
+                const coordinates = this.coordinates; // Certifique-se de que você tem as coordenadas disponíveis neste componente Vue
+
+
+                // Verificar colisões
+                const collision = this.coordinates.find((coord: any) => {
+                    if (Array.isArray(coord.nextCoordinates) && coord.nextCoordinates.length > 0) {
+                        return coord.nextCoordinates.some((nextCoord: any) => nextCoord.x === payload.x && nextCoord.y === payload.y);
+                    } else {
+                        return coord.x === payload.x && coord.y === payload.y && (coord.type === 'table' || coord.type === 'decor' || coord.type === 'nature');
+                    }
+                });
+
+                // Se houver colisão, manter as coordenadas atuais do usuário
+                if (collision) {
+                    console.log("Colisão", collision);
+                    payload.x = user.x;
+                    payload.y = user.y;
+                }
+
+
                 if (payload.x >= 0 && payload.y >= 0 && payload.orientation) {
                     this.wsServices.updateUserMovement(payload);
                 }
@@ -270,4 +314,4 @@ export default defineComponent({
 
 
 
-<style src="@/assets/styles/principal.scss" lang="scss"/>
+<style src="@/assets/styles/principal.scss" lang="scss" />

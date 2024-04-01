@@ -7,6 +7,7 @@
         "defaultYPosition": 0,
         "defaultZIndex": 0,
         "flexStart": true,
+        "noMove": false,
         "objects": [
             "wall_01",
             "wall_02",
@@ -21,6 +22,7 @@
         "defaultYPosition": 1,
         "defaultZIndex": 0,
         "flexStart": true,
+        "noMove": false,
         "objects": [
             "floor_01",
             "floor_02",
@@ -37,6 +39,7 @@
         "defaultXPosition": 2,
         "defaultYPosition": 2,
         "defaultZIndex": 1,
+        "noMove": false,
         "objects": [
             "rug_01",
             "rug_02",
@@ -50,6 +53,7 @@
         "defaultXPosition": 2,
         "defaultYPosition": 2,
         "defaultZIndex": 2,
+        "noMove": true,
         "objects": [
             "table_01",
             "table_02",
@@ -66,6 +70,7 @@
         "defaultXPosition": 2,
         "defaultYPosition": 2,
         "defaultZIndex": 2,
+        "noMove": true,
         "objects": [
             "chair_01_red",
             "chair_01_white",
@@ -82,6 +87,7 @@
         "defaultXPosition": 2,
         "defaultYPosition": 2,
         "defaultZIndex": 2,
+        "noMove": false,
         "objects": [
             "couch_01",
             "couch_02",
@@ -95,6 +101,7 @@
         "defaultXPosition": 2,
         "defaultYPosition": 2,
         "defaultZIndex": 2,
+        "noMove": true,
         "objects": [
             "decor_01",
             "decor_02",
@@ -113,6 +120,7 @@
         "defaultXPosition": 2,
         "defaultYPosition": 2,
         "defaultZIndex": 2,
+        "noMove": true,
         "objects": [
             "nature_01",
             "nature_02",
