@@ -4,6 +4,7 @@ import { RoomServices } from '@/services/RoomServices';
 import { createPeerConnectionContext } from '@/services/WebSocketServices';
 import { defineComponent } from 'vue';
 import ObjectsRoom from './ObjectsRoom.vue';
+import objectAssetsJson from '../../assets/objects/objects.json';
 
 const roomServices = new RoomServices();
 const wsServices = createPeerConnectionContext();
@@ -14,7 +15,8 @@ export default defineComponent({
         return {
             wsServices,
             userId: localStorage.getItem('id') as string,
-            mobile: window.innerWidth < 992
+            mobile: window.innerWidth < 992,
+            objectAssetsJson,
         }
     },
     data() {
@@ -53,6 +55,44 @@ export default defineComponent({
                 return { ...e, type: e?.name?.split('_')[0] }
             })
 
+            //Lógica para verificar quais objetos são do tipo que eu espero e guardar as cordenadas dele adicionando a altura e a largura dos objetos
+            // Agora você pode usar objectAssetsJson sem erros de tipo
+            const filteredCoordinates = this.objects
+                .map((o: any) => {
+                    const asset = objectAssetsJson[o.type as keyof typeof objectAssetsJson];
+                    if (asset.noMove === true && asset.moreThanOnePixel === true && objectAssetsJson.table.objectsMoreThanOnePixel.includes(o.name)) {
+                        const nextCoordinates = [];
+                        for (let x = o.x; x < o.x + 2; x++) {
+                            for (let y = o.y; y < o.y + 2; y++) {
+                                nextCoordinates.push({ x, y });
+                            }
+                        }
+                        console.log("Objetos com mais de 1 pixel", asset);
+                        // Supondo que 'x' e 'y' são as coordenadas x e y do objeto
+                        return { type: o.type, name: o.name, nextCoordinates };
+                    } else if (asset.noMove === true) {
+                        const nextCoordinates = [];
+
+                        let x = o.x;
+                        let y = o.y;
+
+                        nextCoordinates.push({ x, y });
+                        console.log("Objetos com só 1 pixel", asset);
+                        // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                        return { type: o.type, name: o.name, nextCoordinates };
+                    } else {
+                        // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                        return { type: o.type, name: o.name, nextCoordinates: [] };
+                    }
+                });
+            // Atribuir as coordenadas filtradas ao estado do componente
+            this.coordinates = filteredCoordinates;
+            console.log("Objects", filteredCoordinates);
+
+
+
+            //Recuperar valor do objeto do banco objetcs.json[o.type].noMove
+
             this.userMediaStream = await navigator?.mediaDevices?.getUserMedia({
                 video: {
                     width: { min: 640, ideal: 1280 },
@@ -67,28 +107,6 @@ export default defineComponent({
                 videoRef.srcObject = this.userMediaStream;
             }
 
-            // Lógica para verificar quais objetos são do tipo esperado e guardar as coordenadas deles
-            const noMove = this.objects
-                .filter((o: any) => o.type === 'table' || o.type === 'decor' || o.type === 'nature')
-                .map((o: any) => {
-                    if (o.type === 'table' && ['table_01', 'table_02', 'table_03'].includes(o.name)) {
-                        const nextCoordinates = [];
-                        for (let x = o.x; x < o.x + 2; x++) {
-                            for (let y = o.y; y < o.y + 2; y++) {
-                                nextCoordinates.push({ x, y });
-                            }
-                        }
-                        // Supondo que 'x' e 'y' são as coordenadas x e y do objeto
-                        return { type: o.type, name: o.name, x: o.x, y: o.y, nextCoordinates};
-                    } else {
-                        // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
-                        return { type: o.type, name: o.name, id: o._id, x: o.x, y: o.y, nextCoordinates: [] };
-                    }
-                });
-
-            // Defina os dados de coordenadas filtradas no estado do componente
-            this.coordinates = noMove;
-            console.log(noMove)
 
         } catch (e) {
             console.log('erro ao obter dados da reunião:', e);
@@ -194,15 +212,12 @@ export default defineComponent({
                     default: break;
                 }
 
-                const coordinates = this.coordinates; // Certifique-se de que você tem as coordenadas disponíveis neste componente Vue
-
-
-                // Verificar colisões
+                // Verificar colisões e atualizar as coordenadas do usuário
                 const collision = this.coordinates.find((coord: any) => {
                     if (Array.isArray(coord.nextCoordinates) && coord.nextCoordinates.length > 0) {
                         return coord.nextCoordinates.some((nextCoord: any) => nextCoord.x === payload.x && nextCoord.y === payload.y);
                     } else {
-                        return coord.x === payload.x && coord.y === payload.y && (coord.type === 'table' || coord.type === 'decor' || coord.type === 'nature');
+                        return coord.x === payload.x && coord.y === payload.y
                     }
                 });
 
