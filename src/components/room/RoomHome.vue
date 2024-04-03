@@ -59,7 +59,9 @@ export default defineComponent({
             // Agora você pode usar objectAssetsJson sem erros de tipo
             const filteredCoordinates = this.objects
                 .map((o: any) => {
+
                     const asset = objectAssetsJson[o.type as keyof typeof objectAssetsJson];
+                    
                     if (asset.noMove === true && asset.moreThanOnePixel === true && objectAssetsJson.table.objectsMoreThanOnePixel.includes(o.name)) {
                         const nextCoordinates = [];
                         for (let x = o.x; x < o.x + 2; x++) {
