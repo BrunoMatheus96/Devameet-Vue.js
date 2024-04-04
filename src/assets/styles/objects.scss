@@ -302,11 +302,21 @@
         .audio{
             cursor: pointer;
             position: absolute;
-            top: 88%;
-            left: 88%;
+            top: 170%;
+            left: 180%;
             z-index: 25;
 
-            width: 32px;
+            width: 50px;
+        }
+
+        .video{
+            cursor: pointer;
+            position: absolute;
+            top: 170%;
+            left: 155%;
+            z-index: 25;
+
+            width: 47px;
         }
     }
 
@@ -422,6 +432,13 @@
                 left: 90%;
                 width: 48px;
             }
+
+            
+        .video{
+            top: 90.2%;
+            left: 80%;
+            width: 47px;
+        }
         }
     }
 }

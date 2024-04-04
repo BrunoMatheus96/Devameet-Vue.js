@@ -61,7 +61,7 @@ export default defineComponent({
                 .map((o: any) => {
 
                     const asset = objectAssetsJson[o.type as keyof typeof objectAssetsJson];
-                    
+
                     if (asset.noMove === true && asset.moreThanOnePixel === true && objectAssetsJson.table.objectsMoreThanOnePixel.includes(o.name)) {
                         const nextCoordinates = [];
                         for (let x = o.x; x < o.x + 2; x++) {
@@ -91,9 +91,6 @@ export default defineComponent({
             this.coordinates = filteredCoordinates;
             console.log("Objects", filteredCoordinates);
 
-
-
-            //Recuperar valor do objeto do banco objetcs.json[o.type].noMove
 
             this.userMediaStream = await navigator?.mediaDevices?.getUserMedia({
                 video: {
@@ -243,9 +240,22 @@ export default defineComponent({
                 muted: !this.me.muted
             }
 
+
             this.wsServices.updateUserMuted(payload);
+        },
+
+        togglVideo() {
+            const payload = {
+                userId: this.userId,
+                link: this.link,
+                closed: !this.me.closed
+            }
+
+
+            this.wsServices.updateUserVideoClosed(payload);
         }
     },
+
     computed: {
         usersWithoutMe() {
             return this.connectedUsers.filter((u: any) => u.user !== this.userId)
@@ -267,7 +277,8 @@ export default defineComponent({
                 <audio v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <ObjectsRoom :objects="objects" :connectedUsers="connectedUsers" :me="me"
-                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute" />
+                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute"
+                @togglVideo="togglVideo" />
             <div class="empty" v-else>
                 <img src="../../assets/images/empty.svg" />
                 <p>Reunião não encontrada</p>
