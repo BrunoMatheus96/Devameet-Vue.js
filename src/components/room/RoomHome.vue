@@ -120,8 +120,8 @@ export default defineComponent({
             }
 
             if (document.getElementById('userVideo')) {
-                const userVideo: any = document.getElementById('userVideo');
-                userVideo.srcObject = this.userMediaStream
+                const Video: any = document.getElementById('userVideo');
+                Video.srcObject = this.userMediaStream
             }
 
         } catch (e) {
@@ -143,8 +143,6 @@ export default defineComponent({
                         if (me) {
                             this.me = me;
                         }
-                        console.log("Aqui", me)
-
                         const usersWithoutMe = users.filter((u: any) => u.user !== this.userId)
                         for (const user of usersWithoutMe) {
                             this.wsServices.addPeerConnection(user.clientId, this.userMediaStream, (_stream: any) => {
@@ -265,7 +263,7 @@ export default defineComponent({
             const payload = {
                 userId: this.userId,
                 link: this.link,
-                viewed: !this.me.viewed
+                viewed: !this.me.viewed,
             }
 
             this.wsServices.updateUserViewed(payload);
@@ -293,11 +291,15 @@ export default defineComponent({
                 <audio v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <ObjectsRoom :objects="objects" :connectedUsers="connectedUsers" :me="me"
-                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute"
-                @togglView="togglView" />
+                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglView="togglView"
+                @togglMute="togglMute" />
             <div class="empty" v-else>
                 <img src="../../assets/images/empty.svg" />
                 <p>Reunião não encontrada</p>
+            </div>
+            <div class="video-container">
+                <video id="userVideo" autoplay playsinline muted />
+                <video v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <div class="movement" v-if="mobile && me && me.user">
                 <div class="button" @click="doMovement({ key: 'ArrowUp' })">
@@ -314,11 +316,6 @@ export default defineComponent({
                         <img src="../../assets/images/key_right.svg" alt="Andar para direita" />
                     </div>
                 </div>
-            </div>
-            <div class="video-container">
-                <video v-if="!mobile" id="userVideo" autoplay playsinline muted />
-                <video v-if="!mobile" v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId"
-                    :muted="user?.muted"></video>
             </div>
         </div>
     </div>
