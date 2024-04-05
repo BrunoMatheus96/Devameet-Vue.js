@@ -10,7 +10,7 @@ export default defineComponent({
     props: {
         objects: Array,
         connectedUsers: Array,
-        me: null as any
+        me: null as any,
     },
     data() {
         return {
@@ -157,10 +157,10 @@ export default defineComponent({
                 <div :class="getMutedClass(user)"><span :class="getMutedClass(user)">{{ getName(user) }}</span></div>
                 <img :src="getImageFromObject(user, true)" :style="getObjectStyle(user)" />
             </div>
-            <img class="video" src="../../assets/images/video_on.svg" v-if="me && !me.closed"
-                @click="$emit('togglVideo')" />
-            <img class="video" src="../../assets/images/video_off.svg" v-if="me && me.closed"
-                @click="$emit('togglVideo')" />
+            <img class="video" src="../../assets/images/video_on.svg" v-if="me && !me.viewed"
+                @click="$emit('togglView')" />
+            <img class="video" src="../../assets/images/video_off.svg" v-if="me && me.viewed"
+                @click="$emit('togglView')" />
             <img class="audio" src="../../assets/images/audio_on.svg" v-if="me && !me.muted"
                 @click="$emit('togglMute')" />
             <img class="audio" src="../../assets/images/audio_off.svg" v-if="me && me.muted"

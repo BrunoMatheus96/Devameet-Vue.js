@@ -43,8 +43,8 @@ class PeerConnectionSession {
         this.socket.emit('toggl-mute-user', data);
     }
 
-    updateUserVideoClosed(data: any){
-        this.socket.emit('toggl-video-user', data);
+    updateUserViewed(data: any){
+        this.socket.emit('toggl-view-user', data);
     }
 
 

@@ -9,6 +9,7 @@ import objectAssetsJson from '../../assets/objects/objects.json';
 const roomServices = new RoomServices();
 const wsServices = createPeerConnectionContext();
 
+
 export default defineComponent({
     components: { ObjectsRoom },
     setup() {
@@ -62,16 +63,28 @@ export default defineComponent({
 
                     const asset = objectAssetsJson[o.type as keyof typeof objectAssetsJson];
 
-                    if (asset.noMove === true && asset.moreThanOnePixel === true && objectAssetsJson.table.objectsMoreThanOnePixel.includes(o.name)) {
-                        const nextCoordinates = [];
-                        for (let x = o.x; x < o.x + 2; x++) {
-                            for (let y = o.y; y < o.y + 2; y++) {
-                                nextCoordinates.push({ x, y });
+                    if (asset.noMove === true && asset.moreThanOnePixel === true) {
+                        if (asset.objectsMoreThanOnePixel.includes(o.name)) {
+                            const nextCoordinates = [];
+                            for (let x = o.x; x < o.x + 2; x++) {
+                                for (let y = o.y; y < o.y + 2; y++) {
+                                    nextCoordinates.push({ x, y });
+                                }
                             }
+                            console.log("Objetos com mais de 1 pixel", asset);
+                            // Supondo que 'x' e 'y' são as coordenadas x e y do objeto
+                            return { type: o.type, name: o.name, nextCoordinates };
+                        } else {
+                            const nextCoordinates = [];
+
+                            let x = o.x;
+                            let y = o.y;
+
+                            nextCoordinates.push({ x, y });
+                            console.log("Objetos com só 1 pixel", asset);
+                            // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                            return { type: o.type, name: o.name, nextCoordinates };
                         }
-                        console.log("Objetos com mais de 1 pixel", asset);
-                        // Supondo que 'x' e 'y' são as coordenadas x e y do objeto
-                        return { type: o.type, name: o.name, nextCoordinates };
                     } else if (asset.noMove === true) {
                         const nextCoordinates = [];
 
@@ -126,6 +139,7 @@ export default defineComponent({
                         if (me) {
                             this.me = me;
                         }
+                        console.log("Aqui",me)
 
                         const usersWithoutMe = users.filter((u: any) => u.user !== this.userId)
                         for (const user of usersWithoutMe) {
@@ -243,16 +257,14 @@ export default defineComponent({
 
             this.wsServices.updateUserMuted(payload);
         },
-
-        togglVideo() {
+        togglView() {
             const payload = {
                 userId: this.userId,
                 link: this.link,
-                closed: !this.me.closed
+                viewed: !this.me.viewed
             }
 
-
-            this.wsServices.updateUserVideoClosed(payload);
+            this.wsServices.updateUserViewed(payload);
         }
     },
 
@@ -277,8 +289,7 @@ export default defineComponent({
                 <audio v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <ObjectsRoom :objects="objects" :connectedUsers="connectedUsers" :me="me"
-                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute"
-                @togglVideo="togglVideo" />
+                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute" @togglView="togglView" />
             <div class="empty" v-else>
                 <img src="../../assets/images/empty.svg" />
                 <p>Reunião não encontrada</p>
@@ -313,33 +324,5 @@ export default defineComponent({
         </div>
     </GDialog>
 </template>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <style src="@/assets/styles/principal.scss" lang="scss" />
