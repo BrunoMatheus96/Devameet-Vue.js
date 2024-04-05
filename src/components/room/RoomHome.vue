@@ -119,6 +119,10 @@ export default defineComponent({
                 videoRef.srcObject = this.userMediaStream;
             }
 
+            if (document.getElementById('userVideo')) {
+                const userVideo: any = document.getElementById('userVideo');
+                userVideo.srcObject = this.userMediaStream
+            }
 
         } catch (e) {
             console.log('erro ao obter dados da reunião:', e);
@@ -139,7 +143,7 @@ export default defineComponent({
                         if (me) {
                             this.me = me;
                         }
-                        console.log("Aqui",me)
+                        console.log("Aqui", me)
 
                         const usersWithoutMe = users.filter((u: any) => u.user !== this.userId)
                         for (const user of usersWithoutMe) {
@@ -289,7 +293,8 @@ export default defineComponent({
                 <audio v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <ObjectsRoom :objects="objects" :connectedUsers="connectedUsers" :me="me"
-                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute" @togglView="togglView" />
+                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute"
+                @togglView="togglView" />
             <div class="empty" v-else>
                 <img src="../../assets/images/empty.svg" />
                 <p>Reunião não encontrada</p>
@@ -309,6 +314,11 @@ export default defineComponent({
                         <img src="../../assets/images/key_right.svg" alt="Andar para direita" />
                     </div>
                 </div>
+            </div>
+            <div class="video-container">
+                <video v-if="!mobile" id="userVideo" autoplay playsinline muted />
+                <video v-if="!mobile" v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId"
+                    :muted="user?.muted"></video>
             </div>
         </div>
     </div>

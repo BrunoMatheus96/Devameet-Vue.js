@@ -157,6 +157,7 @@ export default defineComponent({
                 <div :class="getMutedClass(user)"><span :class="getMutedClass(user)">{{ getName(user) }}</span></div>
                 <img :src="getImageFromObject(user, true)" :style="getObjectStyle(user)" />
             </div>
+            <!--Para que a habilitar e desabilitar o botão de vídeo é preciso fazer alterações no back. Basicamente replicar as mesmas coisas do mute-->>
             <img class="video" src="../../assets/images/video_on.svg" v-if="me && !me.viewed"
                 @click="$emit('togglView')" />
             <img class="video" src="../../assets/images/video_off.svg" v-if="me && me.viewed"
