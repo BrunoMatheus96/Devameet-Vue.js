@@ -4,9 +4,11 @@ import { RoomServices } from '@/services/RoomServices';
 import { createPeerConnectionContext } from '@/services/WebSocketServices';
 import { defineComponent } from 'vue';
 import ObjectsRoom from './ObjectsRoom.vue';
+import objectAssetsJson from '../../assets/objects/objects.json';
 
 const roomServices = new RoomServices();
 const wsServices = createPeerConnectionContext();
+
 
 export default defineComponent({
     components: { ObjectsRoom },
@@ -14,7 +16,8 @@ export default defineComponent({
         return {
             wsServices,
             userId: localStorage.getItem('id') as string,
-            mobile: window.innerWidth < 992
+            mobile: window.innerWidth < 992,
+            objectAssetsJson,
         }
     },
     data() {
@@ -27,6 +30,7 @@ export default defineComponent({
             connectedUsers: [] as any,
             me: null as any,
             showModal: false,
+            coordinates: [] as any,
         }
     },
     async mounted() {
@@ -52,6 +56,55 @@ export default defineComponent({
                 return { ...e, type: e?.name?.split('_')[0] }
             })
 
+            //Lógica para verificar quais objetos são do tipo que eu espero e guardar as cordenadas dele adicionando a altura e a largura dos objetos
+            // Agora você pode usar objectAssetsJson sem erros de tipo
+            const filteredCoordinates = this.objects
+                .map((o: any) => {
+
+                    const asset = objectAssetsJson[o.type as keyof typeof objectAssetsJson];
+
+                    if (asset.noMove === true && asset.moreThanOnePixel === true) {
+                        if (asset.objectsMoreThanOnePixel.includes(o.name)) {
+                            const nextCoordinates = [];
+                            for (let x = o.x; x < o.x + 2; x++) {
+                                for (let y = o.y; y < o.y + 2; y++) {
+                                    nextCoordinates.push({ x, y });
+                                }
+                            }
+                            console.log("Objetos com mais de 1 pixel", asset);
+                            // Supondo que 'x' e 'y' são as coordenadas x e y do objeto
+                            return { type: o.type, name: o.name, nextCoordinates };
+                        } else {
+                            const nextCoordinates = [];
+
+                            let x = o.x;
+                            let y = o.y;
+
+                            nextCoordinates.push({ x, y });
+                            console.log("Objetos com só 1 pixel", asset);
+                            // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                            return { type: o.type, name: o.name, nextCoordinates };
+                        }
+                    } else if (asset.noMove === true) {
+                        const nextCoordinates = [];
+
+                        let x = o.x;
+                        let y = o.y;
+
+                        nextCoordinates.push({ x, y });
+                        console.log("Objetos com só 1 pixel", asset);
+                        // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                        return { type: o.type, name: o.name, nextCoordinates };
+                    } else {
+                        // Se não for uma mesa com os nomes específicos, retornamos suas coordenadas existentes sem calcular novas coordenadas
+                        return { type: o.type, name: o.name, nextCoordinates: [] };
+                    }
+                });
+            // Atribuir as coordenadas filtradas ao estado do componente
+            this.coordinates = filteredCoordinates;
+            console.log("Objects", filteredCoordinates);
+
+
             this.userMediaStream = await navigator?.mediaDevices?.getUserMedia({
                 video: {
                     width: { min: 640, ideal: 1280 },
@@ -64,6 +117,11 @@ export default defineComponent({
             if (document.getElementById('localVideoRef')) {
                 const videoRef: any = document.getElementById('localVideoRef');
                 videoRef.srcObject = this.userMediaStream;
+            }
+
+            if (document.getElementById('userVideo')) {
+                const Video: any = document.getElementById('userVideo');
+                Video.srcObject = this.userMediaStream
             }
 
         } catch (e) {
@@ -85,7 +143,6 @@ export default defineComponent({
                         if (me) {
                             this.me = me;
                         }
-
                         const usersWithoutMe = users.filter((u: any) => u.user !== this.userId)
                         for (const user of usersWithoutMe) {
                             this.wsServices.addPeerConnection(user.clientId, this.userMediaStream, (_stream: any) => {
@@ -170,6 +227,23 @@ export default defineComponent({
                     default: break;
                 }
 
+                // Verificar colisões e atualizar as coordenadas do usuário
+                const collision = this.coordinates.find((coord: any) => {
+                    if (Array.isArray(coord.nextCoordinates) && coord.nextCoordinates.length > 0) {
+                        return coord.nextCoordinates.some((nextCoord: any) => nextCoord.x === payload.x && nextCoord.y === payload.y);
+                    } else {
+                        return coord.x === payload.x && coord.y === payload.y
+                    }
+                });
+
+                // Se houver colisão, manter as coordenadas atuais do usuário
+                if (collision) {
+                    console.log("Colisão", collision);
+                    payload.x = user.x;
+                    payload.y = user.y;
+                }
+
+
                 if (payload.x >= 0 && payload.y >= 0 && payload.orientation) {
                     this.wsServices.updateUserMovement(payload);
                 }
@@ -182,9 +256,22 @@ export default defineComponent({
                 muted: !this.me.muted
             }
 
+
             this.wsServices.updateUserMuted(payload);
+        },
+        togglView() {
+            const payload = {
+                userId: this.userId,
+                link: this.link,
+                viewed: !this.me.viewed,
+            }
+
+            this.wsServices.updateUserViewed(payload);
+
+            console.log('Valor de viewed:', this.me.viewed);
         }
     },
+
     computed: {
         usersWithoutMe() {
             return this.connectedUsers.filter((u: any) => u.user !== this.userId)
@@ -206,10 +293,14 @@ export default defineComponent({
                 <audio v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <ObjectsRoom :objects="objects" :connectedUsers="connectedUsers" :me="me"
-                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute" />
+                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute" @togglView="togglView" />
             <div class="empty" v-else>
                 <img src="../../assets/images/empty.svg" />
                 <p>Reunião não encontrada</p>
+            </div>
+            <div class="video-container">
+                <video id="userVideo" autoplay playsinline muted v-show="me && !me.viewed" />
+                <video v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <div class="movement" v-if="mobile && me && me.user">
                 <div class="button" @click="doMovement({ key: 'ArrowUp' })">
@@ -242,32 +333,4 @@ export default defineComponent({
     </GDialog>
 </template>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<style src="@/assets/styles/principal.scss" lang="scss"/>
+<style src="@/assets/styles/principal.scss" lang="scss" />

@@ -1,7 +1,3 @@
-/*
-Estilos que vão servir para o projeto como um todo
-*/
-
 @import './configs.scss';
 
 @font-face {
@@ -65,12 +61,6 @@ input {
     &::-ms-input-placeholder {
         color: $greyColor2;
     }
-
-    /*
-    Um placeholder em CSS é um tipo de texto temporário que é exibido dentro de um campo de entrada de um formulário HTML antes que o usuário insira seu próprio texto.
-    Ele é geralmente usado para fornecer uma sugestão ou exemplo do tipo de entrada esperada no campo, sem ocupar muito espaço visualmente.
-    Por exemplo, um campo de entrada de e-mail pode ter um placeholder como "Digite seu e-mail aqui", enquanto um campo de senha pode ter um placeholder como "Digite sua senha". Esses placeholders desaparecem assim que o usuário começa a digitar no campo.
-    */
 }
 
 button {

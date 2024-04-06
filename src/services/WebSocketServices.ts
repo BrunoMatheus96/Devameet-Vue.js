@@ -43,6 +43,11 @@ class PeerConnectionSession {
         this.socket.emit('toggl-mute-user', data);
     }
 
+    updateUserViewed(data: any){
+        this.socket.emit('toggl-view-user', data);
+    }
+
+
     addPeerConnection(id: string, stream : any, callback: any){
         if(!this.peerConnections[id]){
 
