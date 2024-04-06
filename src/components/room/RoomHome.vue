@@ -267,6 +267,8 @@ export default defineComponent({
             }
 
             this.wsServices.updateUserViewed(payload);
+
+            console.log('Valor de viewed:', this.me.viewed);
         }
     },
 
@@ -291,14 +293,13 @@ export default defineComponent({
                 <audio v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <ObjectsRoom :objects="objects" :connectedUsers="connectedUsers" :me="me"
-                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglView="togglView"
-                @togglMute="togglMute" />
+                v-if="objects && objects.length > 0" @enterRoom="joinRoom" @togglMute="togglMute" @togglView="togglView" />
             <div class="empty" v-else>
                 <img src="../../assets/images/empty.svg" />
                 <p>Reunião não encontrada</p>
             </div>
             <div class="video-container">
-                <video id="userVideo" autoplay playsinline muted />
+                <video id="userVideo" autoplay playsinline muted v-show="me && !me.viewed" />
                 <video v-for="user in usersWithoutMe" autoplay playsinline :id="user?.clientId" :muted="user?.muted" />
             </div>
             <div class="movement" v-if="mobile && me && me.user">
